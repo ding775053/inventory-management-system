@@ -1,0 +1,30 @@
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: #f4f7fb;
+  color: #1f2937;
+  font-family: Arial, "Microsoft JhengHei", sans-serif;
+}
+
+button, input { font: inherit; }
+
+.page-container { max-width: 900px; margin: 0 auto; padding: 32px 20px; }
+.intro { color: #64748b; margin-top: -8px; }
+.card { background: white; border-radius: 10px; box-shadow: 0 2px 8px #0f172a14; margin-top: 24px; padding: 24px; }
+.product-form { display: grid; gap: 16px; grid-template-columns: repeat(3, 1fr) auto; align-items: end; }
+label { display: grid; gap: 6px; font-weight: 600; }
+input { border: 1px solid #cbd5e1; border-radius: 6px; padding: 9px; }
+button { background: #2563eb; border: 0; border-radius: 6px; color: white; cursor: pointer; padding: 10px 14px; }
+button:hover { background: #1d4ed8; }
+.delete-button { background: #dc2626; }
+.delete-button:hover { background: #b91c1c; }
+.message { color: #166534; margin-bottom: 0; }
+table { border-collapse: collapse; width: 100%; }
+th, td { border-bottom: 1px solid #e2e8f0; padding: 12px; text-align: left; }
+th { color: #475569; }
+
+@media (max-width: 700px) {
+  .product-form { grid-template-columns: 1fr; }
+  .card { padding: 16px; overflow-x: auto; }
+}
