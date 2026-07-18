@@ -43,6 +43,7 @@ function App() {
     setEditingId(product.id)
 
     setForm({
+      sku: product.sku,
       name: product.name,
       price: product.price,
       quantity: product.quantity,
@@ -55,26 +56,35 @@ function App() {
     event.preventDefault() // 避免表單送出後整個頁面重新整理。
     setMessage('')
 
-    const productToCreate = {
-      sku: form.sku.trim(),
+    const productToSave = {
       name: form.name.trim(),
       price: Number(form.price),
       quantity: Number(form.quantity),
     }
 
     try {
-      const response = await fetch(`${API_URL}/products`, {
-        method: 'POST',
+      const isEditing = editingId !== null
+      const response = await fetch(
+        isEditing ? `${API_URL}/products/${editingId}` : `${API_URL}/products`,
+        {
+        method: isEditing ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(productToCreate),
-      })
-      if (!response.ok) throw new Error('新增失敗，請確認所有欄位都正確填寫')
+        body: JSON.stringify(isEditing ? productToSave : { ...productToSave, sku: form.sku.trim() }),
+        },
+      )
+      if (!response.ok) throw new Error(isEditing ? '更新失敗，請確認所有欄位都正確填寫' : '新增失敗，請確認所有欄位都正確填寫')
 
-      const newProduct = await response.json()
-      // 不必再重新載入全部資料，直接把後端回傳的新商品加到畫面上。
-      setProducts([...products, newProduct])
+      const savedProduct = await response.json()
+      if (isEditing) {
+        // map 會以後端回傳的更新資料，取代列表中相同 id 的商品。
+        setProducts(products.map((product) => product.id === savedProduct.id ? savedProduct : product))
+      } else {
+        // 不必再重新載入全部資料，直接把後端回傳的新商品加到畫面上。
+        setProducts([...products, savedProduct])
+      }
       setForm(emptyForm)
-      setMessage('商品已新增')
+      setEditingId(null)
+      setMessage(isEditing ? '商品已更新' : '商品已新增')
     } catch (error) {
       setMessage(error.message)
     }
@@ -104,11 +114,11 @@ function App() {
       <p className="intro">第一版：查看、新增與刪除商品</p>
 
       <section className="card">
-        <h2>新增商品</h2>
+        <h2>{editingId !== null ? '更新商品' : '新增商品'}</h2>
         <form className="product-form" onSubmit={handleSubmit}>
           <label>
             SKU
-            <input name="sku" value={form.sku} onChange={handleChange} required />
+            <input name="sku" value={form.sku} onChange={handleChange} required disabled={editingId !== null} />
           </label>
           <label>
             商品名稱
@@ -122,7 +132,7 @@ function App() {
             庫存數量
             <input name="quantity" type="number" min="0" step="1" value={form.quantity} onChange={handleChange} required />
           </label>
-          <button type="submit">新增商品</button>
+          <button type="submit">{editingId !== null ? '更新商品' : '新增商品'}</button>
         </form>
         {message && <p className="message">{message}</p>}
       </section>
@@ -150,7 +160,7 @@ function App() {
                 </tr>
               ))}
               {products.length === 0 && (
-                <tr><td colSpan="5">目前沒有商品</td></tr>
+                <tr><td colSpan="6">目前沒有商品</td></tr>
               )}
             </tbody>
           </table>
