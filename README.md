@@ -1,6 +1,6 @@
 # 簡易庫存管理系統
 
-這是一個給初學者練習的全端 Web App。前端用 React 顯示畫面，後端用 FastAPI 提供 API；商品資料暫時儲存在 Python 記憶體，因此後端重啟後資料會回到預設值。
+這是一個給初學者練習的全端 Web App。前端用 React 顯示畫面，後端用 FastAPI 提供 API，商品資料儲存在 SQLite。
 
 ## 專案結構
 
@@ -51,6 +51,24 @@ npm run dev
 ```
 
 終端機會顯示網址，通常是 http://localhost:5173 。在瀏覽器打開它即可使用系統。
+
+## 前端 API 網址設定（Vite）
+
+本機開發時，Vite 會自動讀取 `frontend/.env.development`。檔案中的 `VITE_API_URL` 指向本機 FastAPI：
+
+```text
+VITE_API_URL=http://127.0.0.1:8000
+```
+
+`App.jsx` 透過 `import.meta.env.VITE_API_URL` 取得這個值，因此不需要把 API 網址寫死在程式中。修改 `.env.development` 後，請重新啟動 `npm run dev`。
+
+部署到 Cloudflare Pages 時，不要建立 `.env.production`。請在 Cloudflare 的 Pages 專案中前往 **Settings > Environment variables**，新增：
+
+```text
+VITE_API_URL=https://你的後端網域
+```
+
+儲存後重新部署。請填入可從瀏覽器公開連線的後端 HTTPS 網址；因為 `VITE_` 開頭的變數會提供給前端程式，請勿在這類變數中存放密碼或 API 金鑰。
 
 ## 日後啟動
 

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 
-// 開發時 FastAPI 運行的位置。所有商品操作都會呼叫這個 API。
-const API_URL = 'http://127.0.0.1:8000'
+// Vite 會讀取 .env.development 中以 VITE_ 開頭的變數，讓不同環境使用不同 API 網址。
+const API_URL = import.meta.env.VITE_API_URL
 
 const emptyForm = { sku: '', name: '', price: '', quantity: '' }
 
