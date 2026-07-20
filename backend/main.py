@@ -68,8 +68,9 @@ def initialize_database():
         # 只有資料表完全沒有商品時才加入範例資料，之後重啟不會重複新增。
         if db.query(ProductTable).count() == 0:
             db.add_all([
-                ProductTable(sku="NOTEBOOK-001", name="筆記本", price=50, quantity=20),
-                ProductTable(sku="PEN-001", name="原子筆", price=15, quantity=100),
+                ProductTable(sku="Water-001", name="水", price=50, quantity=20),
+                ProductTable(sku="SHIBA-001", name="柴柴", price=1000000, quantity=1),
+                ProductTable(sku="Nissan-001", name="Tiida", price=188000, quantity=3),                
             ])
             db.commit()
 
