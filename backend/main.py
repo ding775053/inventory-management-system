@@ -14,7 +14,9 @@ app = FastAPI(title="簡易庫存管理系統 API")
 # CORS 允許瀏覽器中的前端向這個後端發送請求。
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=["http://localhost:5173", 
+                   "https://inventory-management-system-3vh.pages.dev",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
