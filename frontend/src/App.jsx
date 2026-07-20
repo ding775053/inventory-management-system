@@ -12,6 +12,14 @@ function App() {
   const [message, setMessage] = useState('')
   const [isLoading, setIsLoading] = useState(true)
   const [editingId, setEditingId] = useState(null)
+  const [searchKeyword, setSearchKeyword] = useState('')
+
+  // 使用者每次輸入時，依 SKU 或商品名稱立即產生要顯示的新商品清單。
+  const normalizedSearchKeyword = searchKeyword.trim().toLowerCase()
+  const filteredProducts = products.filter((product) => (
+    product.sku.toLowerCase().includes(normalizedSearchKeyword)
+    || product.name.toLowerCase().includes(normalizedSearchKeyword)
+  ))
 
   // 元件第一次顯示時，從後端載入商品列表。
   useEffect(() => {
@@ -139,28 +147,44 @@ function App() {
 
       <section className="card">
         <h2>商品列表</h2>
+        <label>
+          搜尋 SKU 或商品名稱
+          {/* onChange 會更新 state，React 因此立刻重新計算 filteredProducts。 */}
+          <input
+            value={searchKeyword}
+            onChange={(event) => setSearchKeyword(event.target.value)}
+            placeholder="例如：PEN-001 或 原子筆"
+          />
+        </label>
         {isLoading ? (
           <p>載入中…</p>
         ) : (
           <table>
             <thead>
-              <tr><th>SKU</th><th>商品名稱</th><th>價格</th><th>庫存數量</th><th>總價</th><th>操作</th></tr>
+              <tr><th>SKU</th><th>商品名稱</th><th>價格</th><th>庫存數量</th><th>總價</th><th>狀態</th><th>操作</th></tr>
             </thead>
             <tbody>
-              {products.map((product) => (
+              {filteredProducts.map((product) => (
                 <tr key={product.id}>
                   <td>{product.sku}</td>
                   <td>⭐ {product.name}</td>
                   <td>NT$ {product.price}</td>
-                  <td>{product.quantity}</td>
+                  {/* quantity 小於 10 時加入 low-stock class，讓 CSS 將文字顯示為紅色。 */}
+                  <td className={product.quantity < 10 ? 'low-stock' : ''}>{product.quantity}</td>
                   <td> NT$ {product.price * product.quantity} </td>
+                  {/* 三元運算子會依庫存數量，在兩種狀態文字中選擇一個顯示。 */}
+                  <td>{product.quantity < 10 ? '⚠️ 庫存不足' : '正常'}</td>
                   <td><button onClick={() => handleEdit(product)}>編輯</button>  
                       <button className="delete-button" onClick={() => handleDelete(product.id)}>刪除</button>
                   </td>
                 </tr>
               ))}
-              {products.length === 0 && (
-                <tr><td colSpan="6">目前沒有商品</td></tr>
+              {filteredProducts.length === 0 && (
+                <tr>
+                  <td colSpan="7">
+                    {searchKeyword.trim() ? '找不到符合的商品' : '目前沒有商品'}
+                  </td>
+                </tr>
               )}
             </tbody>
           </table>

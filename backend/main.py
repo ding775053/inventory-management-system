@@ -86,3 +86,5 @@ def delete_product(product_id: int):
             return
 
     raise HTTPException(status_code=404, detail="找不到此商品")
+
+

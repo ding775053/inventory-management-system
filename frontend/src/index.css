@@ -24,6 +24,9 @@ table { border-collapse: collapse; width: 100%; }
 th, td { border-bottom: 1px solid #e2e8f0; padding: 12px; text-align: left; }
 th { color: #475569; }
 
+/* 庫存少於 10 件時，App.jsx 會加上這個 class 來提醒使用者。 */
+.low-stock { color: #dc2626; font-weight: 700; }
+
 @media (max-width: 700px) {
   .product-form { grid-template-columns: 1fr; }
   .card { padding: 16px; overflow-x: auto; }
