@@ -21,6 +21,13 @@ function App() {
     || product.name.toLowerCase().includes(normalizedSearchKeyword)
   ))
 
+  // 統計卡片直接從目前商品清單計算，因此新增、更新或刪除後會自動更新數字。
+  const lowStockCount = products.filter((product) => product.quantity < 10).length
+  const totalInventoryValue = products.reduce(
+    (total, product) => total + (product.price * product.quantity),
+    0,
+  )
+
   // 元件第一次顯示時，從後端載入商品列表。
   useEffect(() => {
     loadProducts()
@@ -118,11 +125,52 @@ function App() {
 
   return (
     <main className="page-container">
-      <h1>簡易庫存管理系統</h1>
-      <p className="intro">第一版：查看、新增與刪除商品</p>
+      <header className="dashboard-header">
+        <div>
+          <p className="eyebrow">INVENTORY CONTROL</p>
+          <h1>庫存管理系統</h1>
+          <p className="intro">即時掌握商品、庫存與價值</p>
+        </div>
+        <div className="header-badge">管理後台</div>
+      </header>
 
-      <section className="card">
-        <h2>{editingId !== null ? '更新商品' : '新增商品'}</h2>
+      <section className="search-panel" aria-label="搜尋商品">
+        {/* 內嵌 SVG 是純 React 寫法，不需要額外安裝圖示套件。 */}
+        <svg className="search-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="11" cy="11" r="6" />
+          <path d="m16 16 4 4" />
+        </svg>
+        <input
+          type="search"
+          value={searchKeyword}
+          onChange={(event) => setSearchKeyword(event.target.value)}
+          placeholder="搜尋 SKU 或商品名稱，例如：WATER-001"
+          aria-label="搜尋 SKU 或商品名稱"
+        />
+      </section>
+
+      <section className="stats-grid" aria-label="庫存統計">
+        <article className="stat-card stat-card-blue">
+          <div><p>商品總數</p><strong>{products.length}</strong><span>項商品</span></div>
+          <span className="stat-icon">▦</span>
+        </article>
+        <article className="stat-card stat-card-amber">
+          <div><p>低庫存商品</p><strong>{lowStockCount}</strong><span>項需留意</span></div>
+          <span className="stat-icon">!</span>
+        </article>
+        <article className="stat-card stat-card-green">
+          <div><p>總庫存價值</p><strong>NT$ {totalInventoryValue.toLocaleString()}</strong><span>價格 × 庫存</span></div>
+          <span className="stat-icon">$</span>
+        </article>
+      </section>
+
+      <section className="card product-editor">
+        <div className="section-heading">
+          <div>
+            <p className="section-kicker">PRODUCT FORM</p>
+            <h2>{editingId !== null ? '更新商品' : '新增商品'}</h2>
+          </div>
+        </div>
         <form className="product-form" onSubmit={handleSubmit}>
           <label>
             SKU
@@ -140,26 +188,26 @@ function App() {
             庫存數量
             <input name="quantity" type="number" min="0" step="1" value={form.quantity} onChange={handleChange} required />
           </label>
-          <button type="submit">{editingId !== null ? '更新商品' : '新增商品'}</button>
+          <button className="primary-button" type="submit">
+            {editingId !== null ? '儲存更新' : '新增商品'}
+          </button>
         </form>
         {message && <p className="message">{message}</p>}
       </section>
 
-      <section className="card">
-        <h2>商品列表</h2>
-        <label>
-          搜尋 SKU 或商品名稱
-          {/* onChange 會更新 state，React 因此立刻重新計算 filteredProducts。 */}
-          <input
-            value={searchKeyword}
-            onChange={(event) => setSearchKeyword(event.target.value)}
-            placeholder="例如：PEN-001 或 原子筆"
-          />
-        </label>
+      <section className="card product-table-card">
+        <div className="section-heading table-heading">
+          <div>
+            <p className="section-kicker">PRODUCT LIST</p>
+            <h2>商品列表</h2>
+          </div>
+          <span className="result-count">顯示 {filteredProducts.length} 項</span>
+        </div>
         {isLoading ? (
-          <p>載入中…</p>
+          <p className="loading-text">載入中…</p>
         ) : (
-          <table>
+          <div className="table-wrapper">
+            <table>
             <thead>
               <tr><th>SKU</th><th>商品名稱</th><th>價格</th><th>庫存數量</th><th>總價</th><th>狀態</th><th>操作</th></tr>
             </thead>
@@ -167,15 +215,24 @@ function App() {
               {filteredProducts.map((product) => (
                 <tr key={product.id}>
                   <td>{product.sku}</td>
-                  <td>⭐ {product.name}</td>
+                  <td className="product-name">{product.name}</td>
                   <td>NT$ {product.price}</td>
                   {/* quantity 小於 10 時加入 low-stock class，讓 CSS 將文字顯示為紅色。 */}
                   <td className={product.quantity < 10 ? 'low-stock' : ''}>{product.quantity}</td>
-                  <td> NT$ {product.price * product.quantity} </td>
+                  <td>NT$ {(product.price * product.quantity).toLocaleString()}</td>
                   {/* 三元運算子會依庫存數量，在兩種狀態文字中選擇一個顯示。 */}
-                  <td>{product.quantity < 10 ? '⚠️ 庫存不足' : '正常'}</td>
-                  <td><button onClick={() => handleEdit(product)}>編輯</button>  
-                      <button className="delete-button" onClick={() => handleDelete(product.id)}>刪除</button>
+                  <td><span className={product.quantity < 10 ? 'status status-warning' : 'status status-normal'}>{product.quantity < 10 ? '⚠️ 庫存不足' : '正常'}</span></td>
+                  <td>
+                    <div className="action-buttons">
+                      <button className="edit-button" type="button" onClick={() => handleEdit(product)}>
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 20 4.5-1 9-9a2.1 2.1 0 0 0-3-3l-9 9L4 20Z" /><path d="m13 8 3 3" /></svg>
+                        編輯
+                      </button>
+                      <button className="delete-button" type="button" onClick={() => handleDelete(product.id)}>
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14M9 7V4h6v3m-8 0 1 13h8l1-13" /></svg>
+                        刪除
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -187,7 +244,8 @@ function App() {
                 </tr>
               )}
             </tbody>
-          </table>
+            </table>
+          </div>
         )}
       </section>
     </main>
