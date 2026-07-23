@@ -128,7 +128,7 @@ function App() {
       <header className="dashboard-header">
         <div>
           <p className="eyebrow">INVENTORY CONTROL</p>
-          <h1>庫存管理系統</h1>
+          <h1>簡易庫存管理系統</h1>
           <p className="intro">即時掌握商品、庫存與價值</p>
         </div>
         <div className="header-badge">管理後台</div>

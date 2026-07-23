@@ -1,7 +1,7 @@
 """SQLite 資料庫的連線設定。
 
-這個檔案只處理「如何連到資料庫」；商品資料表與 API 邏輯仍放在 main.py，
-讓小型專案的結構維持簡單、容易閱讀。
+這個檔案只處理「如何連到資料庫」；資料表、資料庫操作與 API 路由
+分別放在 models.py、crud.py 與 routers/products.py，讓職責更清楚。
 """
 
 from pathlib import Path
@@ -25,4 +25,3 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 class Base(DeclarativeBase):
     """所有 SQLAlchemy 資料表模型的共同基底。"""
-
