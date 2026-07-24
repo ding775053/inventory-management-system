@@ -2,6 +2,8 @@
 backend/.venv/
 backend/__pycache__/
 backend/**/*.pyc
+# .env 包含本機 PostgreSQL 密碼；保留 .env.example 作為設定範本。
+backend/.env
 
 # Node.js / Vite
 frontend/node_modules/
